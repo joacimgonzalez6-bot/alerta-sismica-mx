@@ -1,0 +1,186 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ALERTA MX | Mapa Satelital</title>
+
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #07111f;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+header {
+  background: #101d30;
+  padding: 15px 20px;
+  border-bottom: 2px solid #e32636;
+}
+
+header h1 {
+  margin: 0;
+  color: #ff3344;
+  letter-spacing: 2px;
+}
+
+header p {
+  margin: 5px 0 0;
+  color: #a9c1dc;
+}
+
+#mapa {
+  height: calc(100vh - 105px);
+  width: 100%;
+}
+
+.info {
+  position: absolute;
+  z-index: 1000;
+  bottom: 25px;
+  left: 15px;
+  background: #101d30;
+  border: 1px solid #304866;
+  border-radius: 10px;
+  padding: 12px;
+  color: white;
+  font-size: 13px;
+}
+
+.sensor {
+  background: #00e676;
+  border: 2px solid white;
+  border-radius: 50%;
+  width: 13px;
+  height: 13px;
+  box-shadow: 0 0 10px #00e676;
+}
+
+.epicentro {
+  background: #ff3030;
+  border: 3px solid white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  box-shadow: 0 0 18px red;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>ALERTA MX</h1>
+  <p>MONITOR SÍSMICO | MAPA SATELITAL</p>
+</header>
+
+<div id="mapa"></div>
+
+<div class="info">
+  <b>LEYENDA</b><br>
+  <span style="color:#00e676">●</span> Sensor simulado<br>
+  <span style="color:#ff3030">●</span> Epicentro de prueba<br>
+  <span style="color:#8db7ff">●</span> Mapa satelital
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+const mapa = L.map("mapa").setView(
+  [23.6345, -102.5528],
+  5
+);
+
+// Mapa satelital
+const satelite = L.tileLayer(
+  "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+  {
+    attribution:
+      "Tiles © Esri | Sources: Esri, Maxar, Earthstar Geographics",
+    maxZoom: 19
+  }
+);
+
+satelite.addTo(mapa);
+
+// Etiquetas geográficas
+const etiquetas = L.tileLayer(
+  "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
+  {
+    attribution: "© Esri",
+    maxZoom: 19
+  }
+);
+
+etiquetas.addTo(mapa);
+
+// Sensores de demostración
+const sensores = [
+  [17.05, -98.20, "Guerrero"],
+  [16.85, -97.10, "Oaxaca"],
+  [19.00, -102.20, "Michoacán"],
+  [19.25, -103.70, "Colima"],
+  [20.65, -103.35, "Jalisco"],
+  [18.85, -98.95, "Puebla"],
+  [16.75, -93.10, "Chiapas"],
+  [17.50, -99.50, "Chilpancingo"],
+  [16.30, -98.05, "Pinotepa Nacional"],
+  [19.43, -99.13, "Ciudad de México"]
+];
+
+sensores.forEach((sensor, indice) => {
+  const icono = L.divIcon({
+    className: "",
+    html: '<div class="sensor"></div>',
+    iconSize: [13, 13],
+    iconAnchor: [6, 6]
+  });
+
+  L.marker([sensor[0], sensor[1]], {
+    icon: icono
+  })
+  .addTo(mapa)
+  .bindPopup(
+    "<b>Sensor ALERTA MX</b><br>" +
+    "Ubicación: " + sensor[2] + "<br>" +
+    "ID: AMX-" + String(indice + 1).padStart(3, "0") +
+    "<br>Estado: Simulado"
+  );
+});
+
+// Epicentro de prueba
+const epicentroIcono = L.divIcon({
+  className: "",
+  html: '<div class="epicentro"></div>',
+  iconSize: [20, 20],
+  iconAnchor: [10, 10]
+});
+
+L.marker([16.9, -98.4], {
+  icon: epicentroIcono
+})
+.addTo(mapa)
+.bindPopup(
+  "<b>Epicentro de demostración</b><br>" +
+  "Región: Guerrero y Oaxaca<br>" +
+  "Magnitud: M4.5<br>" +
+  "Evento simulado"
+);
+
+// Escala
+L.control.scale({
+  imperial: false
+}).addTo(mapa);
+</script>
+
+</body>
+</html>
